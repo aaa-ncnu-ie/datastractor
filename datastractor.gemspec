@@ -9,9 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Kyle Campos"]
   spec.email         = ["kyle.campos@gmail.com"]
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
+  spec.summary       = %q{Manage API interactions between configurable data sources and analytic data systems}
   spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.homepage      = "https://github.com/aaa-ncnu-ie/datastractor"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
