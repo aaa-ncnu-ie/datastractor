@@ -1,8 +1,6 @@
 # Datastractor
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/datastractor`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+A gem to manage API interactions between data sources you want to extract data from and data targets you want to push that data into.
 
 ## Installation
 
@@ -22,7 +20,13 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+    date_range = DateTime.parse("June 1 2017")..DateTime.parse("June 27 2017")
+    maint_incidents = StatusPage.new.get_incidents(search: "maintenance", date_range: date_range, status: "completed")
+
+    puts "Number of maintenance incidents: #{maint_incidents.size}"
+    puts "Maintenance count by application/component:"
+    incident_data_by_component(maint_incidents).each_pair {|component, data| puts "\t#{component} => count: #{data[:count]}\tduration: #{data[:duration]}"}
+    puts "Total time in maintenance(minutes): #{(total_incident_duration(maint_incidents)/60).round}"
 
 ## Development
 
@@ -32,7 +36,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/datastractor. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/aaa-ncnu-ie/datastractor. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 
 ## License
