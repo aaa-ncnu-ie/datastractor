@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/aaa-ncnu-ie/datastractor.svg?branch=master)](https://travis-ci.org/aaa-ncnu-ie/datastractor)
+
 # Datastractor
 
 A gem to manage API interactions between data sources you want to extract data from and data targets you want to push that data into.
