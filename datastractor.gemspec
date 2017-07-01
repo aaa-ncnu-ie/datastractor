@@ -10,7 +10,8 @@ Gem::Specification.new do |spec|
   spec.email         = ["kyle.campos@gmail.com"]
 
   spec.summary       = %q{Manage API interactions between configurable data sources and analytic data systems}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
+  spec.description   = %q{Provides a flexible interface to extract data from configurable data sources and 
+    push them into a configurable set of analytic systems, typically for dashboarding purposes.}
   spec.homepage      = "https://github.com/aaa-ncnu-ie/datastractor"
   spec.license       = "MIT"
 
