@@ -1,4 +1,5 @@
 require 'httparty'
+require 'date'
 
 module Datastractor
   class StatusPage
@@ -30,8 +31,18 @@ module Datastractor
       Incident.parse_incidents JSON.parse(res.body), {date_range: opts[:date_range], status: opts[:status]}
     end
 
-    class Incident
-      require 'date'
+    def self.parse_incidents(incidents_data, options={})
+      opts = {
+        date_range: nil,
+        status: nil
+      }.merge(options)
+
+      incidents_data.collect { |incident_data| Incident.new(incident_data) }
+        .reject { |incident| !opts[:date_range].nil? && !incident.is_in_date_range(opts[:date_range]) }
+        .reject { |incident| !opts[:status].nil? && incident.status != opts[:status] }
+    end
+
+    class Incident < StatusPage
 
       attr_reader :name, :status, :affected_components, :scheduled_for, :resolved_at
       
@@ -41,17 +52,6 @@ module Datastractor
         @affected_components = incident_data["components"].collect {|component| component["name"] }
         @scheduled_for = incident_data["scheduled_for"].nil? ? nil : DateTime.parse(incident_data["scheduled_for"])
         @resolved_at   = incident_data["resolved_at"].nil? ? nil : DateTime.parse(incident_data["resolved_at"])
-      end
-
-      def self.parse_incidents(incidents_data, options={})
-        opts = {
-          date_range: nil,
-          status: nil
-        }.merge(options)
-
-        incidents_data.collect { |incident_data| Incident.new(incident_data) }
-          .reject { |incident| !opts[:date_range].nil? && !incident.is_in_date_range(opts[:date_range]) }
-          .reject { |incident| !opts[:status].nil? && incident.status != opts[:status] }
       end
 
       def duration
