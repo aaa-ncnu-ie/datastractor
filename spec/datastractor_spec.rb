@@ -6,6 +6,10 @@ describe Datastractor do
   end
 
   describe Datastractor::StatusPage do
+    let(:access_token) { "my-token" }
+    let(:page_id) { "my-page-id" }
+    let(:status_page) { Datastractor::StatusPage.new(access_token, page_id) }
+
     let(:incident_components) {
       [
         {
@@ -24,14 +28,7 @@ describe Datastractor do
     }
 
     describe '#initialize' do
-      let(:access_token) { nil }
-      let(:page_id) { nil }
-      let(:status_page) { Datastractor::StatusPage.new(access_token, page_id) }
-
       context "access_token and page_id are passed in init options" do
-        let(:access_token) { "my-token" }
-        let(:page_id) { "my-page-id" }
-
         specify { expect(status_page.access_token).to eql(access_token) }
         specify { expect(status_page.page_id).to eql(page_id) }
         specify { expect(status_page.options).to eql({headers: {"Authorization" => "OAuth #{access_token}"}}) }
@@ -39,6 +36,8 @@ describe Datastractor do
       end
 
       context "access_token and page_id are specified in environment variables" do
+        let(:access_token) { nil }
+        let(:page_id) { nil }
         let(:access_token_string) { "my-token" }
         let(:page_id_string) { "my-page-id" }
         before do
@@ -50,6 +49,77 @@ describe Datastractor do
         specify { expect(status_page.page_id).to eql(page_id_string) }
         specify { expect(status_page.options).to eql({headers: {"Authorization" => "OAuth #{access_token_string}"}}) }
         specify { expect(status_page.type).to eql(:datasource) }
+      end
+    end
+
+    describe '#get_incidents' do
+      let(:query) { "/v1/pages/#{status_page.page_id}/incidents.json" }
+      let(:result_code) { 200 }
+      let(:result_message) { "HTTParty message" }
+      let(:result_body) { {body: "HTTParty body"}.to_json }
+      let(:httparty_result) {
+        double("HTTPartyResult",
+          code: result_code,
+          message: result_message,
+          body: result_body
+        )
+      }
+      let(:options) { {} }
+      let(:parse_options) {
+        {
+          date_range: options[:date_range],
+          status: options[:status]
+        }
+      }
+
+      before(:each) do
+        expect(Datastractor::StatusPage).to receive(:get).with(query, status_page.options) { httparty_result }
+      end
+
+      subject { status_page.get_incidents(options) }
+
+      context "with empty options" do
+        it "should query and parse for all incidents" do
+          expect(Datastractor::StatusPage).to receive(:parse_incidents).with(JSON.parse(result_body), parse_options) { true }
+          subject
+        end
+      end
+
+      context "with search option specified" do
+        let(:search) { "maintenance" }
+        let(:options) { {search: search} }
+        let(:query) { "/v1/pages/#{status_page.page_id}/incidents.json?q=#{search}" }
+
+        it "should query with a search string and parse for incidents" do
+          expect(Datastractor::StatusPage).to receive(:parse_incidents).with(JSON.parse(result_body), parse_options) { true }
+          subject
+        end
+      end
+
+      context "with date_range option specified" do
+        let(:options) { {date_range: (Time.now.to_date - 1)..Time.now.to_date} }
+
+        it "should query with for all incidents and parse with date_range" do
+          expect(Datastractor::StatusPage).to receive(:parse_incidents).with(JSON.parse(result_body), parse_options) { true }
+          subject
+        end
+      end
+
+      context "with status option specified" do
+        let(:options) { {status: "completed" } }
+
+        it "should query with for all incidents and parse with status" do
+          expect(Datastractor::StatusPage).to receive(:parse_incidents).with(JSON.parse(result_body), parse_options) { true }
+          subject
+        end
+      end
+
+      context "when get request throws a non 200" do
+        let(:result_code) { 500 }
+
+        it "should raise an exception" do
+          expect {subject}.to raise_error("Received error #{result_code} #{result_message} #{result_body}")
+        end
       end
     end
 
