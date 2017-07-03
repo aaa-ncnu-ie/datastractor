@@ -5,10 +5,20 @@ describe Datastractor do
     expect(Datastractor::VERSION).not_to be nil
   end
 
+  describe Datastractor::Datastruct do
+    let(:datastruct) { Datastractor::Datastruct.new }
+
+    specify { expect(datastruct.type).to be_nil }
+    specify { expect(datastruct.init_client).to be_nil }
+    specify { expect(datastruct.client).to be_nil }
+    specify { expect(datastruct.access_token_name).to be_nil }
+    specify { expect(datastruct.access_token).to be_nil }
+  end
+
   describe Datastractor::StatusPage do
     let(:access_token) { "my-token" }
     let(:page_id) { "my-page-id" }
-    let(:status_page) { Datastractor::StatusPage.new(access_token, page_id) }
+    let(:status_page) { Datastractor::StatusPage.new({access_token: access_token, page_id: page_id}) }
 
     let(:incident_components) {
       [
@@ -50,6 +60,10 @@ describe Datastractor do
         specify { expect(status_page.options).to eql({headers: {"Authorization" => "OAuth #{access_token_string}"}}) }
         specify { expect(status_page.type).to eql(:datasource) }
       end
+    end
+
+    describe '#access_token_name' do
+      specify { expect(status_page.access_token_name).to eql("STATUS_PAGE_ACCESS_TOKEN") }
     end
 
     describe '#get_incidents' do
