@@ -23,6 +23,36 @@ describe Datastractor do
       ]
     }
 
+    describe '#initialize' do
+      let(:access_token) { nil }
+      let(:page_id) { nil }
+      let(:status_page) { Datastractor::StatusPage.new(access_token, page_id) }
+
+      context "access_token and page_id are passed in init options" do
+        let(:access_token) { "my-token" }
+        let(:page_id) { "my-page-id" }
+
+        specify { expect(status_page.access_token).to eql(access_token) }
+        specify { expect(status_page.page_id).to eql(page_id) }
+        specify { expect(status_page.options).to eql({headers: {"Authorization" => "OAuth #{access_token}"}}) }
+        specify { expect(status_page.type).to eql(:datasource) }
+      end
+
+      context "access_token and page_id are specified in environment variables" do
+        let(:access_token_string) { "my-token" }
+        let(:page_id_string) { "my-page-id" }
+        before do
+          expect(ENV).to receive(:[]).with('STATUS_PAGE_ACCESS_TOKEN') { access_token_string }
+          expect(ENV).to receive(:[]).with('STATUS_PAGE_PAGE_ID') { page_id_string }
+        end
+
+        specify { expect(status_page.access_token).to eql(access_token_string) }
+        specify { expect(status_page.page_id).to eql(page_id_string) }
+        specify { expect(status_page.options).to eql({headers: {"Authorization" => "OAuth #{access_token_string}"}}) }
+        specify { expect(status_page.type).to eql(:datasource) }
+      end
+    end
+
     describe 'self.parse_incidents' do
       let(:incidents_data) { 
         [

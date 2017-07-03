@@ -8,11 +8,19 @@ module Datastractor
     base_uri 'api.statuspage.io'
     #debug_output $stdout
 
-    ACCESS_TOKEN = ENV['STATUS_PAGE_ACCESS_TOKEN']
-    PAGE_ID      = ENV['STATUS_PAGE_PAGE_ID']
+    attr_accessor :access_token, :page_id, :options, :type
 
-    def initialize
-      @options = { headers: {"Authorization" => "OAuth #{ACCESS_TOKEN}"} }
+    def initialize(access_token=nil, page_id=nil)
+      @access_token = (access_token || ENV['STATUS_PAGE_ACCESS_TOKEN'])
+      @page_id      = (page_id || ENV['STATUS_PAGE_PAGE_ID'])
+
+      raise("Must specify access_token and page_id in params or in env\n
+        Env vars:\n\t
+          STATUS_PAGE_ACCESS_TOKEN\n\t
+          STATUS_PAGE_PAGE_ID") unless(!@access_token.nil? && !@page_id.nil?)
+
+      @options      = { headers: {"Authorization" => "OAuth #{@access_token}"} }
+      @type         = :datasource
     end
 
     def get_incidents(options={})
@@ -22,13 +30,13 @@ module Datastractor
         status:     nil
       }.merge(options)
 
-      query = "/v1/pages/#{PAGE_ID}/incidents.json"
+      query = "/v1/pages/#{@page_id}/incidents.json"
       query += "?q=#{opts[:search]}" unless opts[:search].nil?
 
       res = self.class.get(query, @options)
 
       raise "Received error #{res.code} #{res.message} #{res.body}" unless res.code == 200
-      Incident.parse_incidents JSON.parse(res.body), {date_range: opts[:date_range], status: opts[:status]}
+      StatusPage.parse_incidents JSON.parse(res.body), {date_range: opts[:date_range], status: opts[:status]}
     end
 
     def self.parse_incidents(incidents_data, options={})
