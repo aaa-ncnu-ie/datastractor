@@ -5,6 +5,10 @@ module Datastractor
   class Databox < Datastruct
     def initialize(opts={})
       super
+      @options.merge!(
+        submit_time: Time.now.utc.strftime("%Y-%m-%d %H:%M:%S")
+      ).merge!(opts)
+
       raise("Must specify access_token in params or in env\n
         Env var:\n\t
           #{access_token_name}") if(@access_token.nil?)
@@ -28,7 +32,7 @@ module Datastractor
       attributes = { project: project_key }.merge(additional_attributes)
 
       if enabled?
-        metrics.each_pair { |metric, value| puts "client.push(key: #{metric.to_s}, value: #{value}, date: #{options[:submit_time]}, attributes: #{attributes})" } if verbose?
+        metrics.each_pair { |metric, value| puts "client.push(key: #{metric.to_s}, value: #{value}, date: #{@options[:submit_time]}, attributes: #{attributes})" } if verbose?
         metrics.each_pair { |metric, value| client.push(key: metric.to_s, value: value, date: options[:submit_time], attributes: attributes) }
       end
     end

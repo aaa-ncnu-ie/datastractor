@@ -18,6 +18,10 @@ describe Datastractor do
       context "when access_token is not nil" do
         specify { expect(databox.access_token).to eql(access_token) }
       end
+
+      it "should default a submit_time option to a formatted time string" do
+        expect(databox.options[:submit_time]).to match(/\d{4}-\d{02}-\d{02}\s\d{2}:\d{2}:\d{2}/)
+      end
     end
 
     describe '#access_token_name' do
