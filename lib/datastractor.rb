@@ -15,6 +15,10 @@ module Datastractor
       init_client
     end
 
+    def verbose?
+      @options[:verbose] == true
+    end
+
     # Subclass implementations
 
     def init_client
@@ -22,10 +26,6 @@ module Datastractor
 
     def access_token_name
     end
-
-    # def verbose?
-    #   options[:verbose]
-    # end
 
     # def enabled?
     #   options[:enabled]
