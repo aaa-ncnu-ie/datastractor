@@ -130,14 +130,16 @@ describe Datastractor do
             "name" => "Incident 1",
             "status" => "completed",
             "components" => incident_components,
-            "scheduled_for" => (Time.now.to_date - 2).to_s,
-            "resolved_at" => (Time.now.to_date - 1).to_s
+            "created_at" => (DateTime.now - 3).to_s,
+            "scheduled_for" => (DateTime.now - 2).to_s,
+            "resolved_at" => (DateTime.now - 1).to_s
           },
           {
             "name" => "Incident 2",
             "status" => "scheduled",
             "components" => incident_components,
-            "scheduled_for" => (Time.now.to_date + 1).to_s,
+            "created_at" => (DateTime.now - 2).to_s,
+            "scheduled_for" => (DateTime.now + 1).to_s,
             "resolved_at" => nil
           }
         ]
@@ -170,7 +172,7 @@ describe Datastractor do
       end
 
       context "with a date_range option passed" do
-        let(:date_range) { (Time.now.to_date - 3)..(Time.now.to_date) }
+        let(:date_range) { (DateTime.now - 3)..(DateTime.now) }
 
         it "should return only incidents for which the scheduled_for time is in passed date range" do
           expect(parsed_incidents.all?{|incident| date_range.cover? incident.scheduled_for}).to be true
@@ -181,43 +183,60 @@ describe Datastractor do
     describe Datastractor::StatusPage::Incident do
       let(:incident_name) { "Test Incident Name" }
       let(:incident_status) { "completed" }
-      let(:incident_scheduled_for) { Time.now.to_date }
-      let(:incident_resolved_at) { incident_scheduled_for + 1 }
+      let(:impact) { "scheduled" }
+      let(:incident_scheduled_for) { DateTime.now }
+      let(:incident_created_at) { DateTime.now - 1 }
+      let(:incident_resolved_at) { DateTime.now + 2 }
 
-      let(:incident_data) { {
+      let(:incident_data) { FactoryGirl.build(:incident_data, {
           "name" => incident_name,
           "status" => incident_status,
+          "impact" => impact,
           "components" => incident_components,
-          "scheduled_for" => incident_scheduled_for.to_s,
+          "created_at" => incident_created_at.to_s,
+          "scheduled_for" => (incident_scheduled_for.nil? ? nil : incident_scheduled_for.to_s),
           "resolved_at" => incident_resolved_at.to_s
-        }
+        })
       }
 
       let(:incident) { Datastractor::StatusPage::Incident.new(incident_data) }
 
       describe '#initialize' do
-        it "should initialize name, status and components" do
+        it "should initialize used incident data" do
           expect(incident.name).to eql(incident_name)
           expect(incident.status).to eql(incident_status)
+          expect(incident.impact).to eql(impact)
           expect(incident.affected_components).to eql(incident_components.collect {|component| component["name"] })
+          expect(incident.created_at.to_s).to eql(incident_created_at.to_s)
         end
 
         context "when scheduled_for is specified" do
           it "should have scheduled_for date object" do
-            expect(incident.scheduled_for).to eql(incident_scheduled_for)
+            expect(incident.scheduled_for.to_s).to eql(incident_scheduled_for.to_s)
           end
         end
 
         context "when scheduled_for is not specified" do
-          let(:incident_data) { {
-              "name" => incident_name,
-              "status" => incident_status,
-              "components" => incident_components
-            }
-          }
+          let(:incident_data) { FactoryGirl.build(:incident_data, {"scheduled_for" => nil}) }
           
           it "should have nil for scheduled_for " do
             expect(incident.scheduled_for).to be_nil
+          end
+        end
+      end
+
+      describe '#duration' do
+        context "when incident is maintenance" do
+          it "should return seconds between resolved_at and scheduled_for" do
+            expect(incident.duration).to eql((incident_resolved_at.to_time - incident_scheduled_for.to_time).round)
+          end
+        end
+
+        context "when incident is not maintenance" do
+          let(:incident_scheduled_for) { nil }
+
+          it "should return seconds between resolved_at and created_at" do
+            expect(incident.duration).to eql((incident_resolved_at.to_time - incident_created_at.to_time).round)
           end
         end
       end

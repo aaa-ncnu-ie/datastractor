@@ -57,18 +57,20 @@ module Datastractor
 
     class Incident
 
-      attr_reader :name, :status, :affected_components, :scheduled_for, :resolved_at
+      attr_reader :name, :status, :impact, :affected_components, :scheduled_for, :resolved_at, :created_at
 
       def initialize(incident_data)
         @name   = incident_data["name"]
         @status = incident_data["status"]
+        @impact = incident_data["impact"]
         @affected_components = incident_data["components"].collect {|component| component["name"] }
         @scheduled_for = incident_data["scheduled_for"].nil? ? nil : DateTime.parse(incident_data["scheduled_for"])
+        @created_at    = DateTime.parse(incident_data["created_at"])
         @resolved_at   = incident_data["resolved_at"].nil? ? nil : DateTime.parse(incident_data["resolved_at"])
       end
 
       def duration
-        @resolved_at.to_time - @scheduled_for.to_time
+        (@resolved_at.to_time - ((@scheduled_for && @scheduled_for.to_time) || @created_at.to_time)).round
       end
 
       def duration_in_minutes
@@ -77,6 +79,12 @@ module Datastractor
 
       def is_in_date_range(range)
         range.cover? @scheduled_for
+      end
+    end
+
+    class IncidentCollection
+      def initialize(incident_array)
+        @incidents = incident_array
       end
     end
   end

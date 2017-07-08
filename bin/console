@@ -4,6 +4,7 @@ require "bundler/setup"
 require "datastractor"
 require "datastractor/datastructs/status_page"
 require "datastractor/datastructs/databox"
+require 'factory_girl'
 
 # You can add fixtures and/or initialization code here to make experimenting
 # with your gem easier. You can also use a different console, if you like.
@@ -11,6 +12,9 @@ require "datastractor/datastructs/databox"
 # (If you use this, don't forget to add pry to your Gemfile!)
 # require "pry"
 # Pry.start
+
+include FactoryGirl::Syntax::Methods
+FactoryGirl.find_definitions
 
 require "irb"
 IRB.start
