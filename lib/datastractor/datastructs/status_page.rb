@@ -74,11 +74,11 @@ module Datastractor
       end
 
       def duration_in_minutes
-        (duration/60).round
+        (duration.to_f/60).round
       end
 
       def is_in_date_range(range)
-        range.cover? @scheduled_for
+        range.cover? (@scheduled_for.nil? ? @created_at : @scheduled_for)
       end
     end
 

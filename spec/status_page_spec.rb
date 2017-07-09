@@ -240,6 +240,43 @@ describe Datastractor do
           end
         end
       end
+
+      describe '#duration_in_minutes' do
+        it "should return the duration in minutes rounded to nearest whole" do
+          expect(incident).to receive(:duration) { 175 }
+          expect(incident.duration_in_minutes).to eql(3)
+        end
+      end
+
+      describe '#is_date_in_range' do
+        let(:range) { (DateTime.now - 2)..(DateTime.now + 1) }
+
+        context "when scheduled_for is today" do
+          it "should be in range" do
+            expect(incident.is_in_date_range(range)).to be true
+          end
+        end
+
+        context "when scheduled_for is 2 days from now" do
+          let(:incident_scheduled_for) { DateTime.now + 2 }
+
+          it "should not be in range" do
+            expect(incident.is_in_date_range(range)).to be false
+          end
+        end
+
+        context "when scheduled_for is nil" do
+          let(:incident_scheduled_for) { nil }
+
+          context "and created_at is today" do
+            let(:incident_created_at) { DateTime.now }
+
+            it "should be in range" do
+              expect(incident.is_in_date_range(range)).to be true
+            end
+          end
+        end
+      end
     end
   end
 end
