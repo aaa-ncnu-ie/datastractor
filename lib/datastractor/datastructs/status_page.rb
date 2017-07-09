@@ -57,7 +57,7 @@ module Datastractor
 
     class Incident
 
-      attr_reader :name, :status, :impact, :affected_components, :scheduled_for, :resolved_at, :created_at
+      attr_accessor :name, :status, :impact, :affected_components, :scheduled_for, :resolved_at, :created_at
 
       def initialize(incident_data)
         @name   = incident_data["name"]

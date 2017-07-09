@@ -119,11 +119,17 @@ FactoryGirl.define do
     initialize_with { defaults.merge(attributes.stringify_keys) }
   end
 
-  factory :incident do
-    name "Test Incident"
-
+  factory :incident, class: Datastractor::StatusPage::Incident do
     trait :completed do
       status "resolved"
+    end
+
+    trait :in_progress do
+      status "in_progress"
+    end
+
+    trait :scheduled do
+      status "scheduled"
     end
 
     factory :maintenance_incident do
@@ -134,12 +140,6 @@ FactoryGirl.define do
       end
     end
 
-    trait :in_progress do
-      status "in_progress"
-    end 
-
-    trait :scheduled do
-      status "scheduled"
-    end
+    initialize_with { new(FactoryGirl.build(:incident_data)) }
   end
 end
