@@ -157,9 +157,9 @@ describe Datastractor do
       let(:parsed_incidents) { Datastractor::StatusPage.parse_incidents(incidents_data, options) }
       
       context "with no options passed" do
-        it "should return an array of incident objects" do
-          expect(parsed_incidents.size).to eql(incidents_data.size)
-          expect(parsed_incidents.all?{|incident| incident.class == Datastractor::StatusPage::Incident }).to be true
+        it "should return an IncidentCollection" do
+          expect(parsed_incidents.class).to eql(Datastractor::StatusPage::IncidentCollection)
+          expect(parsed_incidents.incidents.size).to eql(incidents_data.size)
         end
       end
 
@@ -167,7 +167,7 @@ describe Datastractor do
         let(:status) { "completed" }
 
         it "should return an array of incidents who has status of passed" do
-          expect(parsed_incidents.all?{|incident| incident.status == status}).to be true
+          expect(parsed_incidents.incidents.all?{|incident| incident.status == status}).to be true
         end
       end
 
@@ -175,7 +175,7 @@ describe Datastractor do
         let(:date_range) { (DateTime.now - 3)..(DateTime.now) }
 
         it "should return only incidents for which the scheduled_for time is in passed date range" do
-          expect(parsed_incidents.all?{|incident| date_range.cover? incident.scheduled_for}).to be true
+          expect(parsed_incidents.incidents.all?{|incident| date_range.cover? incident.scheduled_for}).to be true
         end
       end
     end
@@ -276,6 +276,17 @@ describe Datastractor do
             end
           end
         end
+      end
+    end
+
+    describe Datastractor::StatusPage::IncidentCollection do
+      let(:incident_1) { FactoryGirl.build(:incident, "name" => 'Incident 1') }
+      let(:incident_2) { FactoryGirl.build(:incident, "name" => 'Incident 2') }
+      let(:incidents) { [incident_1, incident_2] }
+      let(:incident_collection) { Datastractor::StatusPage::IncidentCollection.new(incidents) }
+
+      describe '#initialize' do
+        specify { expect(incident_collection.incidents).to eql(incidents) }
       end
     end
   end

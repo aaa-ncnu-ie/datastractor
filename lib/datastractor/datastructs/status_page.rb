@@ -50,9 +50,11 @@ module Datastractor
         status: nil
       }.merge(options)
 
-      incidents_data.collect { |incident_data| Incident.new(incident_data) }
+      IncidentCollection.new(
+        incidents_data.collect { |incident_data| Incident.new(incident_data) }
         .reject { |incident| !opts[:date_range].nil? && !incident.is_in_date_range(opts[:date_range]) }
         .reject { |incident| !opts[:status].nil? && incident.status != opts[:status] }
+      )
     end
 
     class Incident
@@ -83,6 +85,8 @@ module Datastractor
     end
 
     class IncidentCollection
+      attr_reader :incidents
+
       def initialize(incident_array)
         @incidents = incident_array
       end
