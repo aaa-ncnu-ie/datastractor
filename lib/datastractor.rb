@@ -26,8 +26,8 @@ module Datastractor
     def access_token_name
     end
 
-    # def enabled?
-    #   options[:enabled]
-    # end
+    def enabled?
+      options[:enabled]
+    end
   end
 end

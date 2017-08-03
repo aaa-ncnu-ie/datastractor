@@ -34,5 +34,17 @@ describe Datastractor do
         specify { expect(datastruct.verbose?).to be false }
       end
     end
+
+    describe "#enabled?" do
+      context "when enabled option is not overwritten" do
+        specify { expect(datastruct.enabled?).to be true }
+      end
+
+      context "when enabled option is overwritten to false" do
+        let(:options) { {:enabled => false} }
+
+        specify { expect(datastruct.enabled?).to be false }
+      end
+    end
   end
 end
