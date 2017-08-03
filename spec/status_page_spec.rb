@@ -288,6 +288,12 @@ describe Datastractor do
       describe '#initialize' do
         specify { expect(incident_collection.incidents).to eql(incidents) }
       end
+
+      describe '#duration' do
+        it "should return cumulative incident duration for the collection" do
+          expect(incident_collection.duration).to eql(incident_1.duration + incident_2.duration)
+        end
+      end
     end
   end
 end

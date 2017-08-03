@@ -90,6 +90,32 @@ module Datastractor
       def initialize(incident_array)
         @incidents = incident_array
       end
+
+      def duration
+        @incidents.inject(0) { |res, incident| res += incident.duration }
+      end
+
+      def duration_in_minutes
+        (duration.to_f/60).round
+      end
+
+      def sort_by_component
+        components = {}
+        @incidents.each do |incident|
+          incident.affected_components.each do |affected_component|
+            if components[affected_component].nil?
+              components[affected_component] = {
+                count: 1,
+                duration: incident.duration_in_minutes
+              }
+            else
+              components[affected_component][:count]    += 1
+              components[affected_component][:duration] += incident.duration_in_minutes
+            end
+          end
+        end
+        components
+      end
     end
   end
 end
