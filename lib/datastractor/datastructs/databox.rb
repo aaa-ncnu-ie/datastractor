@@ -28,11 +28,9 @@ module Datastractor
     end
 
     def publish(metrics, opts={})
-      attributes = opts[:attributes] || {}
-
       if enabled?
-        metrics.each_pair { |metric, value| puts "client.push(key: #{metric.to_s}, value: #{value}, date: #{@options[:submit_time]}, attributes: #{attributes})" } if verbose?
-        metrics.each_pair { |metric, value| client.push(key: metric.to_s, value: value, date: options[:submit_time], attributes: attributes) }
+        metrics.each_pair { |metric, value| puts "client.push(key: #{metric.to_s}, value: #{value}, date: #{@options[:submit_time]}, attributes: #{opts[:attributes]})" } if verbose?
+        metrics.each_pair { |metric, value| client.push(key: metric.to_s, value: value, date: options[:submit_time], attributes: opts[:attributes]) }
       end
     end
   end
