@@ -18,7 +18,7 @@ module Datastractor
       raise("Must specify access_token and page_id in params or in env\n
         Env vars:\n\t
           STATUS_PAGE_ACCESS_TOKEN\n\t
-          STATUS_PAGE_PAGE_ID") unless(!@access_token.nil? && !@page_id.nil?)
+          STATUS_PAGE_PAGE_ID") unless(enabled? && !@access_token.nil? && !@page_id.nil?)
 
       @options      = { headers: {"Authorization" => "OAuth #{@access_token}"} }
       @type         = :datasource
@@ -115,6 +115,10 @@ module Datastractor
           end
         end
         components
+      end
+
+      def count
+        @incidents.size
       end
     end
   end

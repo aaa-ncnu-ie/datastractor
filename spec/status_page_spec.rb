@@ -294,6 +294,12 @@ describe Datastractor do
           expect(incident_collection.duration).to eql(incident_1.duration + incident_2.duration)
         end
       end
+
+      describe '#count' do
+        it "should return incident count" do
+          expect(incident_collection.count).to eql(2)
+        end
+      end
     end
   end
 end
