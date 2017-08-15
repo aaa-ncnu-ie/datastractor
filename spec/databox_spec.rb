@@ -5,6 +5,9 @@ describe Datastractor do
     let(:access_token) { "my-access-token" }
     let(:options) { {access_token: access_token} }
     let(:databox) { Datastractor::Databox.new(options) }
+    let(:databox_client) { double("databox-client") }
+
+    before(:each) { allow(::Databox::Client).to receive(:new) { databox_client} }
 
     describe '#initialize' do
       context "when access_token is nil" do
@@ -26,6 +29,33 @@ describe Datastractor do
 
     describe '#access_token_name' do
       specify { expect(databox.access_token_name).to eql("DATABOX_ACCESS_TOKEN") }
+    end
+
+    describe '#publish' do
+      let(:metrics) { {:key1 => 10,:key2 => 20} }
+      let(:attributes) { {:product => "My App Name"} }
+      let(:publish_options) { {attributes: attributes} }
+
+      before(:each) { expect(databox).to receive(:enabled?) { enabled? } }
+
+      context "when enabled? is false" do
+        let(:enabled?) { false }
+
+        it "should not publish metrics" do
+          expect(databox.client).not_to receive(:push)
+          databox.publish(metrics, publish_options)
+        end
+      end
+
+      context "when enabled? is true" do
+        let(:enabled?) { true }
+
+        it "should publish metrics" do
+          expect(databox.client).to receive(:push).with(hash_including(key: "key1", value: 10, attributes: attributes))
+          expect(databox.client).to receive(:push).with(hash_including(key: "key2", value: 20, attributes: attributes))
+          databox.publish(metrics, publish_options)
+        end
+      end
     end
   end
 end
